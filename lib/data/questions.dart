@@ -25,4 +25,16 @@ const questions = [
     'Valencia',
     'Seville',
   ]),
+  QuizQuestion("Tỉnh gì rộng nhất cả nước?", [
+    'Nghệ An',
+    'Hà Tĩnh',
+    'Thanh Hóa',
+    'Quảng Bình',
+  ]),
+  QuizQuestion("Sông nào dài nhất Việt Nam?", [
+    'Sông Hồng',
+    'Sông Mekong',
+    'Sông Cửu Long',
+    'Sông Đà River',
+  ]),
 ];
