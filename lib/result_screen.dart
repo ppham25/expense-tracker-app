@@ -35,32 +35,28 @@ class ResultScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(40),
       width: double.infinity,
-      child: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'You answered ${numCorrectAnswers} out of ${questions.length} questions correctly!',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.lato(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+      padding: const EdgeInsets.all(30),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'You answered ${numCorrectAnswers} out of ${questions.length} questions correctly!',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.lato(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            SizedBox(height: 30),
-            QuestionsSummary(summaryData: getSummaryData()),
-            SizedBox(height: 10),
-            TextButton.icon(
-              onPressed: restartQuiz,
-              icon: Icon(Icons.refresh, color: Colors.white),
-              label: Text(
-                "Restart Quiz",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 30),
+          Expanded(child: QuestionsSummary(summaryData: getSummaryData())),
+          SizedBox(height: 10),
+          TextButton.icon(
+            onPressed: restartQuiz,
+            icon: Icon(Icons.refresh, color: Colors.white),
+            label: Text("Restart Quiz", style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
