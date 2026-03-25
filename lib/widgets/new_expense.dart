@@ -2,8 +2,9 @@ import 'package:adv_basic/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class NewExpense extends StatefulWidget {
-  const NewExpense({super.key});
+  const NewExpense({super.key, required this.onAddExpense});
 
+  final void Function(Expense expense) onAddExpense;
   //final Expense expense;
   @override
   State<NewExpense> createState() => _NewExpenseState();
@@ -13,6 +14,42 @@ class _NewExpenseState extends State<NewExpense> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   @override
+  void _submitExpenseData() {
+    final amountIsValid =
+        (double.tryParse(_amountController.text.trim()) == null) ||
+        (double.tryParse(_amountController.text.trim())! <= 0);
+    if (_titleController.text.trim().isEmpty ||
+        amountIsValid ||
+        _selectedDate == null) {
+      showDialog(
+        context: context,
+        builder:
+            (cxt) => AlertDialog(
+              title: Text('Invalid Input'),
+              content: Text('Please enter a valid title, amount and date.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(cxt);
+                  },
+                  child: Text('Okay'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+    widget.onAddExpense(
+      Expense(
+        title: _titleController.text,
+        amount: double.parse(_amountController.text),
+        date: _selectedDate!,
+        category: _selectedCategory,
+      ),
+    );
+    Navigator.pop(context);
+  }
+
   void dispose() {
     _titleController.dispose();
     _amountController.dispose();
@@ -39,7 +76,7 @@ class _NewExpenseState extends State<NewExpense> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 40, 16.0, 16),
       child: Column(
         children: [
           TextField(
@@ -53,7 +90,7 @@ class _NewExpenseState extends State<NewExpense> {
               Expanded(
                 child: TextField(
                   decoration: const InputDecoration(
-                    prefix: const Text('\$ '),
+                    prefix: Text('\$ '),
                     labelText: 'Amount',
                   ),
                   keyboardType: TextInputType.number,
@@ -110,10 +147,7 @@ class _NewExpenseState extends State<NewExpense> {
               ),
               SizedBox(width: 8),
               ElevatedButton(
-                onPressed:
-                    () => print(
-                      '${_titleController.text}, ${_amountController.text}',
-                    ),
+                onPressed: _submitExpenseData,
                 child: const Text('Save Expense'),
               ),
             ],

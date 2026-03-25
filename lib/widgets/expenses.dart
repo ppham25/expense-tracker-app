@@ -2,12 +2,12 @@ import 'package:adv_basic/models/expense.dart';
 import 'package:adv_basic/widgets/new_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:adv_basic/widgets/expenses_list/expenses_list.dart';
-import 'package:adv_basic/widgets/new_expense.dart';
 
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ExpensesState createState() => _ExpensesState();
 }
 
@@ -27,11 +27,24 @@ class _ExpensesState extends State<Expenses> {
     ),
   ];
 
-  void _addExpense() {
+  void _openAddExpenseOverlay() {
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
-      builder: (ctx) => const NewExpense(),
+      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
     );
+  }
+
+  void _addExpense(Expense expense) {
+    setState(() {
+      _registeredExpenses.add(expense);
+    });
+  }
+
+  void _removeExpense(Expense expense) {
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
   }
 
   @override
@@ -40,13 +53,20 @@ class _ExpensesState extends State<Expenses> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: const Text('Expense Tracker'),
-        actions: [IconButton(onPressed: _addExpense, icon: Icon(Icons.add))],
+        actions: [
+          IconButton(onPressed: _openAddExpenseOverlay, icon: Icon(Icons.add)),
+        ],
       ),
       body: Column(
         children: [
           Text("Expense Chart"),
           Text("Expense List"),
-          Expanded(child: ExpensesList(expenses: _registeredExpenses)),
+          Expanded(
+            child: ExpensesList(
+              expenses: _registeredExpenses,
+              onRemoveExpense: _removeExpense,
+            ),
+          ),
         ],
       ),
     );
