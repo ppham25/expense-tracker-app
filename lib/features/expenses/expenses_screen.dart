@@ -1,8 +1,8 @@
-import 'package:adv_basic/models/expense.dart';
-import 'package:adv_basic/widgets/chart/chart.dart';
-import 'package:adv_basic/widgets/new_expense.dart';
+import 'package:adv_basic/features/expenses/models/expense.dart';
+import 'package:adv_basic/features/expenses/widgets/chart/chart.dart';
+import 'package:adv_basic/features/expenses/widgets/new_expense.dart';
 import 'package:flutter/material.dart';
-import 'package:adv_basic/widgets/expenses_list/expenses_list.dart';
+import 'package:adv_basic/features/expenses/widgets/expenses_list/expenses_list.dart';
 
 class Expenses extends StatefulWidget {
   const Expenses({super.key});

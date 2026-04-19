@@ -1,4 +1,4 @@
-import 'package:adv_basic/models/expense.dart';
+import 'package:adv_basic/features/expenses/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseItem extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:adv_basic/widgets/expenses.dart';
+import 'package:adv_basic/features/auth/login_screen.dart';
 import 'package:flutter/services.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
@@ -56,7 +56,7 @@ void main() {
           ),
         ),
       ),
-      home: Expenses(),
+      home: LoginScreen(),
     ),
   );
 }
