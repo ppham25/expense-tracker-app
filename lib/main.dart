@@ -1,21 +1,83 @@
+import 'package:adv_basic/features/auth/login_screen.dart';
+import 'package:adv_basic/features/auth/services/auth_service.dart';
 import 'package:adv_basic/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
-  seedColor: Color.fromARGB(255, 33, 150, 243),
+  seedColor: const Color.fromARGB(255, 33, 150, 243),
 );
+
 var kDarkColorScheme = ColorScheme.fromSeed(
-  seedColor: Color.fromARGB(255, 23, 80, 127),
+  seedColor: const Color.fromARGB(255, 23, 80, 127),
   brightness: Brightness.dark,
 );
+
 void main() {
   // đoạn mã để app không xoay màn hình được
-  //   WidgetsFlutterBinding.ensureInitialized();
-  //   SystemChrome.setPreferredOrientations([
-  //     DeviceOrientation.portraitUp,
-  //   ]).then((fn){});
-  runApp(
-    MaterialApp(
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  // ]).then((fn) {});
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AuthService _authService = AuthService();
+  bool _isLoading = true;
+  bool _hasToken = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    try {
+      final token = await _authService.getToken();
+
+      if (!mounted) return;
+
+      setState(() {
+        _hasToken = token != null && token.isNotEmpty;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _hasToken = false;
+      });
+    } finally {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget homeScreen;
+
+    if (_isLoading) {
+      homeScreen = const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    } else if (_hasToken) {
+      homeScreen = const MainNavigationScreen();
+    } else {
+      homeScreen = const LoginScreen();
+    }
+
+    return MaterialApp(
       darkTheme: ThemeData.dark().copyWith(
         colorScheme: kDarkColorScheme,
         cardTheme: CardThemeData().copyWith(
@@ -61,7 +123,7 @@ void main() {
           type: BottomNavigationBarType.fixed,
         ),
       ),
-      home: MainNavigationScreen(),
-    ),
-  );
+      home: homeScreen,
+    );
+  }
 }

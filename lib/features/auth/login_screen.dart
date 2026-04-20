@@ -1,5 +1,6 @@
 import 'package:adv_basic/features/auth/services/auth_service.dart';
 import 'package:adv_basic/main_navigation_screen.dart';
+import 'package:adv_basic/features/auth/regis_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  bool _isPasswordHidden = true;
 
   @override
   void dispose() {
@@ -38,25 +40,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final result = await _authService.login(email: email, password: password);
+
       if (!mounted) return;
       final user = result['user'];
+      final token = result['token'];
+      await _authService.saveToken(token);
+
+      print(token);
+      print(user.name);
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Welcome, ${user.name}!')));
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainNavigationScreen()),
       );
     } catch (error) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Đăng nhập thất bại: ${error.toString()}")),
+      );
     } finally {
+      if (mounted) return;
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  Widget _buildLabel(String text) {
+    return SizedBox(width: 120, child: Text(text));
   }
 
   @override
@@ -69,25 +82,44 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Row(
               children: [
-                Text("Email"),
+                _buildLabel("Email"),
                 SizedBox(width: 16),
                 Expanded(
                   child: TextField(
                     controller: _emailController,
                     decoration: InputDecoration(labelText: "Email"),
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
                   ),
                 ),
               ],
             ),
             Row(
               children: [
-                Text("Password"),
+                _buildLabel("Password"),
                 SizedBox(width: 16),
                 Expanded(
                   child: TextField(
                     controller: _passwordController,
-                    decoration: InputDecoration(labelText: "Password"),
-                    obscureText: true,
+                    obscureText: _isPasswordHidden,
+                    textInputAction: TextInputAction.done,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordHidden = !_isPasswordHidden;
+                          });
+                        },
+                        icon: Icon(
+                          _isPasswordHidden
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -113,7 +145,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text("Don't have an account?"),
                 TextButton(
                   onPressed: () {
-                    // Handle sign-up logic here
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
+                    );
                   },
                   child: Text("Sign Up"),
                 ),
