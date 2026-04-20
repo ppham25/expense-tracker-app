@@ -1,6 +1,5 @@
+import 'package:adv_basic/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:adv_basic/features/auth/login_screen.dart';
-import 'package:flutter/services.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
   seedColor: Color.fromARGB(255, 33, 150, 243),
@@ -55,8 +54,14 @@ void main() {
             fontSize: 20,
           ),
         ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: kColorScheme.primaryContainer,
+          selectedItemColor: kColorScheme.onPrimaryContainer,
+          unselectedItemColor: kColorScheme.onPrimaryContainer.withOpacity(0.7),
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
-      home: LoginScreen(),
+      home: MainNavigationScreen(),
     ),
   );
 }
