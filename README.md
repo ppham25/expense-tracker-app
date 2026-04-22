@@ -12,6 +12,10 @@ A full-stack expense tracking mobile app built with Flutter, Node.js, Express, a
 - Budget overview to monitor spending habits
 - Profile screen for basic account information
 
+## Demo Video
+
+[Watch demo](assets/imagess/demo.mp4)
+
 ## Tech Stack
 
 - Flutter
@@ -22,38 +26,36 @@ A full-stack expense tracking mobile app built with Flutter, Node.js, Express, a
 
 ## Screenshots
 
-## Screenshots
-
-### Login
-
-Secure user login with email and password.
-
-<img src="assets/images/login.png" alt="Login Screen" width="260"/>
-
-### Register
-
-New users can create an account and start tracking expenses.
-
-<img src="assets/images/register.png" alt="Register Screen" width="260"/>
-
-### Home
-
-View expenses in a clean list with category icons and transaction dates.
-
-<img src="assets/images/home.png" alt="Home Screen" width="260"/>
-
-### Add and Undo Expense
-
-Add a new expense and restore deleted records with undo support.
-
-<img src="assets/images/add.png" alt="Add Screen" width="260"/>
-<img src="assets/images/undo.png" alt="Undo Screen" width="260"/>
-
-### Statistics
-
-Analyze monthly spending with a daily chart, category percentages, and top 3 highest expenses.
-
-<img src="assets/images/statics.png" alt="Statistics Screen" width="260"/>
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/images/login.png" alt="Login Screen" width="220"/><br/>
+      <sub>Login</sub>
+    </td>
+    <td align="center">
+      <img src="assets/images/register.png" alt="Register Screen" width="220"/><br/>
+      <sub>Register</sub>
+    </td>
+    <td align="center">
+      <img src="assets/images/home.png" alt="Home Screen" width="220"/><br/>
+      <sub>Home</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/images/add.png" alt="Add Screen" width="220"/><br/>
+      <sub>Add Expense</sub>
+    </td>
+    <td align="center">
+      <img src="assets/images/undo.png" alt="Undo Screen" width="220"/><br/>
+      <sub>Undo Delete</sub>
+    </td>
+    <td align="center">
+      <img src="assets/images/statics.png" alt="Statistics Screen" width="220"/><br/>
+      <sub>Statistics</sub>
+    </td>
+  </tr>
+</table>
 
 ## Project Structure
 
