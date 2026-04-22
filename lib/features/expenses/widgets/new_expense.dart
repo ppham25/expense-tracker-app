@@ -16,7 +16,7 @@ class NewExpense extends StatefulWidget {
     required Category category,
   })
   onAddExpense;
-  //final Expense expense;
+
   @override
   State<NewExpense> createState() => _NewExpenseState();
 }
