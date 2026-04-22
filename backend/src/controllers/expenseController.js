@@ -105,8 +105,76 @@ const deleteExpense = async (req, res) => {
   }
 };
 
+const updateExpense = async (req, res) => {
+  try {
+    const expenseId = Number(req.params.id);
+    const userId = req.user.userId;
+    const { title, amount, category, expense_date } = req.body;
+
+    if (Number.isNaN(expenseId)) {
+      return res.status(400).json({
+        message: "Invalid expense id",
+      });
+    }
+
+    if (!title || !amount || !category || !expense_date) {
+      return res.status(400).json({
+        message: "Title, amount, category and expense_date are required",
+      });
+    }
+
+    if (!allowedCategories.includes(category)) {
+      return res.status(400).json({
+        message: "Invalid category",
+      });
+    }
+
+    const parsedAmount = Number(amount);
+
+    if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({
+        message: "Amount must be a number greater than 0",
+      });
+    }
+
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
+      return res.status(400).json({
+        message: "Title cannot be empty",
+      });
+    }
+
+    const updatedExpense = await expenseModel.updateExpenseByIdAndUserId(
+      expenseId,
+      userId,
+      trimmedTitle,
+      parsedAmount,
+      category,
+      expense_date,
+    );
+
+    if (!updatedExpense) {
+      return res.status(404).json({
+        message: "Expense not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Expense updated successfully",
+      expense: updatedExpense,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createExpense,
   getMyExpenses,
   deleteExpense,
+  updateExpense,
 };

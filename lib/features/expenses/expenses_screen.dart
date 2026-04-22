@@ -77,6 +77,64 @@ class _ExpensesState extends State<Expenses> {
     }
   }
 
+  void _openEditExpenseOverlay(Expense expense) {
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder:
+          (ctx) => NewExpense(
+            expense: expense,
+            onAddExpense: ({
+              required String title,
+              required double amount,
+              required DateTime date,
+              required Category category,
+            }) async {
+              await _updatedExpense(
+                id: expense.id,
+                title: title,
+                amount: amount,
+                date: date,
+                category: category,
+              );
+            },
+          ),
+    );
+  }
+
+  Future<void> _updatedExpense({
+    required String id,
+    required String title,
+    required double amount,
+    required DateTime date,
+    required Category category,
+  }) async {
+    try {
+      final updateExpense = await _expenseService.updateExpense(
+        id: id,
+        title: title,
+        amount: amount,
+        date: date,
+        category: category,
+      );
+      if (!mounted) return;
+      setState(() {
+        final index = _registeredExpenses.indexWhere(
+          (expense) => expense.id == id,
+        );
+        if (index != -1) {
+          _registeredExpenses[index] = updateExpense;
+        }
+      });
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update expense: $error')),
+      );
+    }
+  }
+
   Future<void> _removeExpense(Expense expense) async {
     try {
       final removedIndex = _registeredExpenses.indexOf(expense);
@@ -137,6 +195,7 @@ class _ExpensesState extends State<Expenses> {
       mainContent = ExpensesList(
         expenses: _registeredExpenses,
         onRemoveExpense: _removeExpense,
+        onEditExpense: _openEditExpenseOverlay,
       );
     }
     return Scaffold(

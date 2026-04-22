@@ -48,8 +48,38 @@ const deleteExpenseByIdAndUserId = async (expenseId, userId) => {
   return result.affectedRows;
 };
 
+const updateExpenseByIdAndUser = async (
+  expenseId,
+  userId,
+  title,
+  amount,
+  category,
+  expenseDate,
+) => {
+  const [result] = await db.execute(
+    `
+    UPDATE expenses
+SET title = ?, amount = ?, category = ?, expense_date = ?
+WHERE id = ? AND user_id = ?
+    `,
+    [title, amount, category, expenseDate, expenseId, userId],
+  );
+  if (result.affectedRows === 0) return null;
+  const [rows] = await db.execute(
+    `
+      SELECT id, user_id, title, amount, category, expense_date, created_at, updated_at
+      FROM expenses
+      WHERE id = ?
+      LIMIT 1
+    `,
+    [expenseId],
+  );
+  return rows[0];
+};
+
 module.exports = {
   createExpense,
   getExpensesByUserId,
   deleteExpenseByIdAndUserId,
+  updateExpenseByIdAndUser,
 };

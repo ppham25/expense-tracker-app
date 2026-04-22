@@ -5,7 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NewExpense extends StatefulWidget {
-  const NewExpense({super.key, required this.onAddExpense});
+  const NewExpense({super.key, required this.onAddExpense, this.expense});
+
+  final Expense? expense;
 
   final Future<void> Function({
     required String title,
@@ -22,6 +24,18 @@ class NewExpense extends StatefulWidget {
 class _NewExpenseState extends State<NewExpense> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.expense != null) {
+      _titleController.text = widget.expense!.title;
+      _amountController.text = widget.expense!.amount.toString();
+      _selectedDate = widget.expense!.date;
+      _selectedCategory = widget.expense!.category;
+    }
+  }
+
   void _showDialog() {
     if (Platform.isIOS) {
       showCupertinoDialog(

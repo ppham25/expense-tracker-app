@@ -92,4 +92,39 @@ class ExpenseService {
       throw Exception('Failed to delete expense');
     }
   }
+
+  Future<Expense> updateExpense({
+    required String id,
+    required String title,
+    required double amount,
+    required DateTime date,
+    required Category category,
+  }) async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      throw Exception('User not authenticated');
+    }
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/expenses/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'title': title,
+        'amount': amount,
+        'expense_date': date.toIso8601String().split('T').first,
+        'category': category.name,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update expense');
+    }
+    final data = jsonDecode(response.body);
+    final updatedExpense = Expense.fromJson(data['expense']);
+    return updatedExpense;
+  }
 }
