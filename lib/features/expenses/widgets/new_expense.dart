@@ -98,8 +98,6 @@ class _NewExpenseState extends State<NewExpense> {
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to add expense: $error')));
     }
-    if (!mounted) return;
-    Navigator.pop(context);
   }
 
   @override
