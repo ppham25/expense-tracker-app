@@ -14,7 +14,7 @@ A full-stack expense tracking mobile app built with Flutter, Node.js, Express, a
 
 ## Demo Preview
 
-![Demo GIF](assets/images/demo.gif)
+<img src="assets/images/demo.gif" alt="Demo GIF" width="180"/>
 
 ## Tech Stack
 
