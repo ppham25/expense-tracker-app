@@ -96,7 +96,7 @@ class _NewExpenseState extends State<NewExpense> {
     } catch (error) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add expense: $error')));
+      ).showSnackBar(SnackBar(content: Text('Thêm chi tiêu thất bại: $error')));
     }
   }
 
@@ -146,8 +146,8 @@ class _NewExpenseState extends State<NewExpense> {
                     Expanded(
                       child: TextField(
                         decoration: const InputDecoration(
-                          prefix: Text('\$ '),
-                          labelText: 'Amount',
+                          prefix: Text('nghìn đồng '),
+                          labelText: 'Số tiền',
                         ),
                         keyboardType: TextInputType.number,
                         controller: _amountController,

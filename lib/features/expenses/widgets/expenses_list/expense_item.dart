@@ -27,7 +27,7 @@ class ExpenseItem extends StatelessWidget {
               SizedBox(height: 4),
               Row(
                 children: [
-                  Text('\$${expense.amount.toStringAsFixed(2)}'),
+                    Text('${expense.amount.toStringAsFixed(0)}.000 VNĐ'),
                   const Spacer(),
                   Row(
                     children: [

@@ -199,7 +199,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '\$${_statisticsData!.monthlySummary.totalSpent.toStringAsFixed(2)}',
+                          '${_statisticsData!.monthlySummary.totalSpent.toStringAsFixed(0)}.000 VNĐ',
                         ),
                       ],
                     ),
@@ -244,7 +244,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Expanded(
                             child: Text(item.category.name.toUpperCase()),
                           ),
-                          Text('\$${item.amount.toStringAsFixed(2)}'),
+                          Text('${item.amount.toStringAsFixed(0)}.000 VNĐ'),
                           const SizedBox(width: 12),
                           Text('${item.percentage.toStringAsFixed(1)}%'),
                         ],
@@ -277,7 +277,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         child: Row(
                           children: [
                             Expanded(child: Text(expense.title)),
-                            Text('\$${expense.amount.toStringAsFixed(2)}'),
+                            Text('${expense.amount.toStringAsFixed(0)}.000 VNĐ'),
                           ],
                         ),
                       ),
