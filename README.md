@@ -12,9 +12,9 @@ A full-stack expense tracking mobile app built with Flutter, Node.js, Express, a
 - Budget overview to monitor spending habits
 - Profile screen for basic account information
 
-## Demo Video
+## Demo Preview
 
-[Watch demo](assets/imagess/demo.mp4)
+![Demo GIF](assets/images/demo.gif)
 
 ## Tech Stack
 
