@@ -145,7 +145,7 @@ const updateExpense = async (req, res) => {
       });
     }
 
-    const updatedExpense = await expenseModel.updateExpenseByIdAndUserId(
+    const updatedExpense = await expenseModel.updateExpenseByIdAndUser(
       expenseId,
       userId,
       trimmedTitle,

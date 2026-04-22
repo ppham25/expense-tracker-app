@@ -110,29 +110,22 @@ class _ExpensesState extends State<Expenses> {
     required DateTime date,
     required Category category,
   }) async {
-    try {
-      final updateExpense = await _expenseService.updateExpense(
-        id: id,
-        title: title,
-        amount: amount,
-        date: date,
-        category: category,
+    final updateExpense = await _expenseService.updateExpense(
+      id: id,
+      title: title,
+      amount: amount,
+      date: date,
+      category: category,
+    );
+    if (!mounted) return;
+    setState(() {
+      final index = _registeredExpenses.indexWhere(
+        (expense) => expense.id == id,
       );
-      if (!mounted) return;
-      setState(() {
-        final index = _registeredExpenses.indexWhere(
-          (expense) => expense.id == id,
-        );
-        if (index != -1) {
-          _registeredExpenses[index] = updateExpense;
-        }
-      });
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update expense: $error')),
-      );
-    }
+      if (index != -1) {
+        _registeredExpenses[index] = updateExpense;
+      }
+    });
   }
 
   Future<void> _removeExpense(Expense expense) async {

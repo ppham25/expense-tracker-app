@@ -121,7 +121,9 @@ class ExpenseService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to update expense');
+      throw Exception(
+        'Failed to update expense (${response.statusCode}): ${response.body}',
+      );
     }
     final data = jsonDecode(response.body);
     final updatedExpense = Expense.fromJson(data['expense']);

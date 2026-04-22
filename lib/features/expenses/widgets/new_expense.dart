@@ -84,12 +84,20 @@ class _NewExpenseState extends State<NewExpense> {
       _showDialog();
       return;
     }
-    await widget.onAddExpense(
-      title: _titleController.text.trim(),
-      amount: double.parse(_amountController.text.trim()),
-      date: _selectedDate!,
-      category: _selectedCategory,
-    );
+    try {
+      await widget.onAddExpense(
+        title: _titleController.text.trim(),
+        amount: double.parse(_amountController.text.trim()),
+        date: _selectedDate!,
+        category: _selectedCategory,
+      );
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (error) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add expense: $error')));
+    }
     if (!mounted) return;
     Navigator.pop(context);
   }
