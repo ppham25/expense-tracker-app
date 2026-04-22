@@ -53,3 +53,10 @@ app.*.map.json
 /backend/npm-debug.log*
 /backend/yarn-debug.log*
 /backend/yarn-error.log*
+
+linux/
+macos/
+windows/
+web/
+test/
+.metadata
