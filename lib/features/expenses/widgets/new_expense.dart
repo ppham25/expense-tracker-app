@@ -7,7 +7,13 @@ import 'package:flutter/material.dart';
 class NewExpense extends StatefulWidget {
   const NewExpense({super.key, required this.onAddExpense});
 
-  final void Function(Expense expense) onAddExpense;
+  final Future<void> Function({
+    required String title,
+    required double amount,
+    required DateTime date,
+    required Category category,
+  })
+  onAddExpense;
   //final Expense expense;
   @override
   State<NewExpense> createState() => _NewExpenseState();
@@ -54,7 +60,7 @@ class _NewExpenseState extends State<NewExpense> {
     }
   }
 
-  void _submitExpenseData() {
+  Future<void> _submitExpenseData() async {
     final amountIsValid =
         (double.tryParse(_amountController.text.trim()) == null) ||
         (double.tryParse(_amountController.text.trim())! <= 0);
@@ -64,17 +70,17 @@ class _NewExpenseState extends State<NewExpense> {
       _showDialog();
       return;
     }
-    widget.onAddExpense(
-      Expense(
-        title: _titleController.text,
-        amount: double.parse(_amountController.text),
-        date: _selectedDate!,
-        category: _selectedCategory,
-      ),
+    await widget.onAddExpense(
+      title: _titleController.text.trim(),
+      amount: double.parse(_amountController.text.trim()),
+      date: _selectedDate!,
+      category: _selectedCategory,
     );
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
+  @override
   void dispose() {
     _titleController.dispose();
     _amountController.dispose();

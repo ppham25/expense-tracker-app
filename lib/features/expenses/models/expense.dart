@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
-final uuid = Uuid();
 final formatter = DateFormat.yMd();
 
 enum Category { food, travel, leisure, work }
@@ -16,22 +14,50 @@ const categoryIcons = {
 
 class Expense {
   Expense({
+    required this.id,
     required this.title,
     required this.amount,
     required this.date,
     required this.category,
-  }) : id = uuid.v4();
+  });
+
   final String id;
   final String title;
   final double amount;
   final DateTime date;
   final Category category;
+
   String get formattedDate {
     return formatter.format(date);
   }
 
   IconData get icon {
     return categoryIcons[category]!;
+  }
+
+  static Category _parseCategory(String category) {
+    switch (category) {
+      case 'food':
+        return Category.food;
+      case 'travel':
+        return Category.travel;
+      case 'leisure':
+        return Category.leisure;
+      case 'work':
+        return Category.work;
+      default:
+        throw Exception('Invalid category: $category');
+    }
+  }
+
+  factory Expense.fromJson(Map<String, dynamic> json) {
+    return Expense(
+      id: json['id'].toString(),
+      title: json['title'],
+      amount: double.parse(json['amount'].toString()),
+      date: DateTime.parse(json['expense_date']),
+      category: _parseCategory(json['category']),
+    );
   }
 }
 
@@ -40,9 +66,7 @@ class ExpenseBucket {
 
   ExpenseBucket.forCategory(List<Expense> allExpense, this.category)
     : expenses =
-          allExpense
-              .where((expenses) => expenses.category == category)
-              .toList();
+          allExpense.where((expense) => expense.category == category).toList();
 
   final Category category;
   final List<Expense> expenses;

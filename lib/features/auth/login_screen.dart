@@ -61,10 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: Text("Đăng nhập thất bại: ${error.toString()}")),
       );
     } finally {
-      if (mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

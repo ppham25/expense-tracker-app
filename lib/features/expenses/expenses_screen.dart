@@ -1,4 +1,5 @@
 import 'package:adv_basic/features/expenses/models/expense.dart';
+import 'package:adv_basic/features/expenses/services/expense_service.dart';
 import 'package:adv_basic/features/expenses/widgets/chart/chart.dart';
 import 'package:adv_basic/features/expenses/widgets/new_expense.dart';
 import 'package:flutter/material.dart';
@@ -8,25 +9,39 @@ class Expenses extends StatefulWidget {
   const Expenses({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ExpensesState createState() => _ExpensesState();
 }
 
 class _ExpensesState extends State<Expenses> {
-  final List<Expense> _registeredExpenses = [
-    Expense(
-      title: 'Flutter Course',
-      amount: 19.99,
-      date: DateTime.now(),
-      category: Category.work,
-    ),
-    Expense(
-      title: 'Cinema',
-      amount: 15.69,
-      date: DateTime.now(),
-      category: Category.leisure,
-    ),
-  ];
+  final List<Expense> _registeredExpenses = [];
+  bool _isLoading = true;
+  final ExpenseService _expenseService = ExpenseService();
+
+  Future<void> _loadExpenses() async {
+    try {
+      final expenses = await _expenseService.getExpenses();
+      setState(() {
+        _registeredExpenses.clear();
+        _registeredExpenses.addAll(expenses as Iterable<Expense>);
+        _isLoading = false;
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load expenses: $error')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExpenses();
+  }
 
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
@@ -37,32 +52,77 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
-  void _addExpense(Expense expense) {
-    setState(() {
-      _registeredExpenses.add(expense);
-    });
+  Future<void> _addExpense({
+    required String title,
+    required double amount,
+    required DateTime date,
+    required Category category,
+  }) async {
+    try {
+      final newExpense = await _expenseService.addExpense(
+        title: title,
+        amount: amount,
+        date: date,
+        category: category,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _registeredExpenses.insert(0, newExpense);
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add expense: $error')));
+    }
   }
 
-  void _removeExpense(Expense expense) {
-    final expenseIndex = _registeredExpenses.indexOf(expense);
-    setState(() {
-      _registeredExpenses.remove(expense);
-    });
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: Duration(seconds: 3),
-        content: Text('Expense deleted.'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            setState(() {
-              _registeredExpenses.insert(expenseIndex, expense);
-            });
-          },
+  Future<void> _removeExpense(Expense expense) async {
+    try {
+      final removedIndex = _registeredExpenses.indexOf(expense);
+      final removedExpense = expense;
+
+      await _expenseService.deleteExpense(expense.id);
+      if (!mounted) return;
+      setState(() {
+        _registeredExpenses.remove(expense);
+      });
+
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text('Expense deleted.'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () async {
+              try {
+                final restoredExpense = await _expenseService.addExpense(
+                  title: removedExpense.title,
+                  amount: removedExpense.amount,
+                  date: removedExpense.date,
+                  category: removedExpense.category,
+                );
+
+                if (!mounted) return;
+                setState(() {
+                  _registeredExpenses.insert(removedIndex, restoredExpense);
+                });
+              } catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to restore expense: $error')),
+                );
+              }
+            },
+          ),
         ),
-      ),
-    );
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete expense: $error')),
+      );
+    }
   }
 
   @override
@@ -71,7 +131,9 @@ class _ExpensesState extends State<Expenses> {
     Widget mainContent = const Center(
       child: Text('No expenses found. Start adding some!'),
     );
-    if (_registeredExpenses.isNotEmpty) {
+    if (_isLoading) {
+      mainContent = const Center(child: CircularProgressIndicator());
+    } else if (_registeredExpenses.isNotEmpty) {
       mainContent = ExpensesList(
         expenses: _registeredExpenses,
         onRemoveExpense: _removeExpense,
