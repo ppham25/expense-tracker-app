@@ -46,18 +46,20 @@ class _LoginScreenState extends State<LoginScreen> {
       final token = result['token'];
       await _authService.saveToken(token);
 
-      print(token);
-      print(user.name);
-
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text('Welcome, ${user.name}!')));
       Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (context) => MainNavigationScreen()),
       );
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
+        context,
+      ).showSnackBar(
         SnackBar(content: Text("Đăng nhập thất bại: ${error.toString()}")),
       );
     } finally {

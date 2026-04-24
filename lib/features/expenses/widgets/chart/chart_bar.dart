@@ -23,6 +23,7 @@ class ChartBar extends StatelessWidget {
               color:
                   isDarkMode
                       ? Theme.of(context).colorScheme.secondary
+                      // ignore: deprecated_member_use
                       : Theme.of(context).colorScheme.primary.withOpacity(0.65),
             ),
           ),

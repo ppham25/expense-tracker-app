@@ -1,5 +1,8 @@
 import 'package:adv_basic/features/expenses/models/expense.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+final currencyFormatter = NumberFormat('#,###', 'vi_VN');
 
 class ExpenseItem extends StatelessWidget {
   const ExpenseItem({
@@ -27,7 +30,9 @@ class ExpenseItem extends StatelessWidget {
               SizedBox(height: 4),
               Row(
                 children: [
-                  Text('${expense.amount.toStringAsFixed(0)}.000 VNĐ'),
+                  Text(
+                    '${currencyFormatter.format(expense.amount * 1000)} VNĐ',
+                  ),
                   const Spacer(),
                   Row(
                     children: [

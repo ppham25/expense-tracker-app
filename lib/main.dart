@@ -55,6 +55,7 @@ class _MyAppState extends State<MyApp> {
         _hasToken = false;
       });
     } finally {
+      // ignore: control_flow_in_finally
       if (!mounted) return;
 
       setState(() {
@@ -92,7 +93,6 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       theme: ThemeData().copyWith(
-        useMaterial3: true,
         scaffoldBackgroundColor: kColorScheme.primaryContainer,
         colorScheme: kColorScheme,
         appBarTheme: AppBarTheme().copyWith(
@@ -119,6 +119,7 @@ class _MyAppState extends State<MyApp> {
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: kColorScheme.primaryContainer,
           selectedItemColor: kColorScheme.onPrimaryContainer,
+          // ignore: deprecated_member_use
           unselectedItemColor: kColorScheme.onPrimaryContainer.withOpacity(0.7),
           type: BottomNavigationBarType.fixed,
         ),

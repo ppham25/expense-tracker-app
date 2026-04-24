@@ -54,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(content: Text("Failed to load profile: ${error.toString()}")),
       );
     } finally {
+      // ignore: control_flow_in_finally
       if (!mounted) return;
       setState(() {
         _isLoading = false;

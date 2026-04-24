@@ -83,6 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
+      // ignore: control_flow_in_finally
       if (!mounted) return;
 
       setState(() {

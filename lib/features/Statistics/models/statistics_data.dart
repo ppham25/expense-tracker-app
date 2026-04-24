@@ -1,5 +1,4 @@
 import 'package:adv_basic/features/expenses/models/expense.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 class StatisticsData {
   StatisticsData({

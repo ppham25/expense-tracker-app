@@ -1,5 +1,5 @@
 import 'package:adv_basic/features/budget/budget_screen.dart';
-import 'package:adv_basic/features/statistics/statistics_screen.dart';
+import 'package:adv_basic/features/statistics/statistic_screen.dart';
 import 'package:adv_basic/features/profile/profile_screen.dart';
 import 'package:adv_basic/features/expenses/expenses_screen.dart';
 import 'package:flutter/material.dart';
