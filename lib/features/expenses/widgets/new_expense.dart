@@ -146,7 +146,7 @@ class _NewExpenseState extends State<NewExpense> {
                     Expanded(
                       child: TextField(
                         decoration: const InputDecoration(
-                          prefix: Text('k VNĐ'),
+                          suffixText: 'Nghìn VNĐ',
                           labelText: 'Số tiền',
                         ),
                         keyboardType: TextInputType.number,

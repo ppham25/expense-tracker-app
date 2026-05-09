@@ -99,6 +99,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ),
       );
     }
+
     return Scaffold(
       appBar: AppBar(title: Text('Statistics')),
       body: Padding(
@@ -132,7 +133,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       if (value == null) return;
 
                       setState(() {
-                        _selectedMonth = value;
+                        _selectedYear = value;
                         _isLoading = true;
                       });
 

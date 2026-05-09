@@ -79,3 +79,36 @@ VALUES
   (2, 'Printing files', 30.00, 'work', '2026-04-11'),
   (2, 'BBQ dinner', 260.00, 'food', '2026-04-17'),
   (2, 'Concert ticket', 500.00, 'leisure', '2026-04-22');
+
+  CREATE TABLE budgets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+
+  user_id INT NOT NULL,
+
+  category VARCHAR(50) NOT NULL,
+
+  limit_amount DECIMAL(10,2) NOT NULL,
+
+  month INT NOT NULL,
+
+  year INT NOT NULL,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_budget_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+INSERT INTO budgets
+(user_id, category, limit_amount, month, year)
+
+VALUES
+(1, 'food', 2000, 4, 2026),
+(1, 'travel', 1000, 4, 2026),
+(1, 'work', 1500, 4, 2026),
+(1, 'leisure', 3000, 4, 2026),
+(2, 'leisure', 4999, 4, 2026);
