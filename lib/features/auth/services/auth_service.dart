@@ -83,6 +83,36 @@ class AuthService {
     return User.fromJson(responseData['user']);
   }
 
+  Future<void> changePassword({
+    required String token,
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final url = Uri.parse('${ApiConstants.authBase}/change-password');
+
+    final response = await http
+        .put(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'oldPassword': oldPassword,
+            'newPassword': newPassword,
+            'confirmPassword': confirmPassword,
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
+
+    final responseData = jsonDecode(response.body);
+
+    if (response.statusCode != 200) {
+      throw Exception(responseData['message'] ?? 'Change password failed');
+    }
+  }
+
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);

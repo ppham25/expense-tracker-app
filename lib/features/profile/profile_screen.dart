@@ -2,6 +2,7 @@ import 'package:adv_basic/features/auth/login_screen.dart';
 import 'package:adv_basic/features/auth/models/user.dart';
 import 'package:adv_basic/features/auth/regis_screen.dart';
 import 'package:adv_basic/features/auth/services/auth_service.dart';
+import 'package:adv_basic/features/profile/change_password_screen.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -51,10 +52,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to load profile: ${error.toString()}")),
+        SnackBar(content: Text("Tải thông tin cá nhân thất bại: $error")),
       );
     } finally {
-      // ignore: control_flow_in_finally
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -66,6 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await _authService.clearToken();
 
     if (!mounted) return;
+
     setState(() {
       _user = null;
     });
@@ -73,9 +74,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Đã đăng xuất')));
-    Navigator.push(
+
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
+
+  void _goToChangePassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
     );
   }
 
@@ -103,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               ).then((_) => _loadProfile());
             },
-            child: const Text("Login", style: TextStyle(fontSize: 20)),
+            child: const Text("Đăng nhập", style: TextStyle(fontSize: 20)),
           ),
           TextButton(
             onPressed: () {
@@ -112,31 +121,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 MaterialPageRoute(builder: (context) => const RegisterScreen()),
               );
             },
-            child: const Text("Sign Up", style: TextStyle(fontSize: 20)),
+            child: const Text("Đăng ký", style: TextStyle(fontSize: 20)),
           ),
         ],
       );
     } else {
-      content = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(Icons.person, size: 150),
-          const SizedBox(height: 16),
-          Text(
-            _user!.name,
-            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(_user!.email, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 20),
-          ElevatedButton(onPressed: _logout, child: const Text('Logout')),
-        ],
+      content = Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.person, size: 150),
+            const SizedBox(height: 16),
+            Text(
+              _user!.name,
+              style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(_user!.email, style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 28),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _goToChangePassword,
+                icon: const Icon(Icons.lock_reset),
+                label: const Text('Đổi mật khẩu'),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _logout,
+                icon: const Icon(Icons.logout),
+                label: const Text('Đăng xuất'),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text('Thông tin cá nhân')),
       body: Center(child: content),
     );
   }

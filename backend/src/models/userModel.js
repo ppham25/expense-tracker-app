@@ -16,6 +16,14 @@ const findById = async (id) => {
   return rows[0];
 };
 
+const findAuthById = async (id) => {
+  const [rows] = await db.execute(
+    "SELECT id, name, email, password_hash FROM users WHERE id = ? LIMIT 1",
+    [id],
+  );
+  return rows[0];
+};
+
 const createUser = async (name, email, passwordHash) => {
   const [result] = await db.execute(
     "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
@@ -24,8 +32,18 @@ const createUser = async (name, email, passwordHash) => {
   return result.insertId;
 };
 
+const updatePassword = async (id, passwordHash) => {
+  const [result] = await db.execute(
+    "UPDATE users SET password_hash = ? WHERE id = ?",
+    [passwordHash, id],
+  );
+  return result.affectedRows;
+};
+
 module.exports = {
   findByEmail,
-  createUser,
   findById,
+  findAuthById,
+  createUser,
+  updatePassword,
 };
