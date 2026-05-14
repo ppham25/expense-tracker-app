@@ -2,7 +2,7 @@ const budgetModel = require("../models/budgetModel");
 
 const createBudget = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const { category, limitAmount, month, year } = req.body;
 
@@ -29,11 +29,12 @@ const createBudget = async (req, res) => {
 
 const getBudgets = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const month = Number(req.query.month);
 
     const year = Number(req.query.year);
+    console.log("userId:", userId, "month:", month, "year:", year); // Thêm dòng này
 
     const budgets = await budgetModel.getBudgetsByMonth(userId, month, year);
 
@@ -51,7 +52,7 @@ const getBudgets = async (req, res) => {
 
 const updateBudget = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const budgetId = req.params.id;
 
@@ -78,7 +79,7 @@ const updateBudget = async (req, res) => {
 
 const deleteBudget = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const budgetId = req.params.id;
 

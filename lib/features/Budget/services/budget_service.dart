@@ -30,7 +30,7 @@ class BudgetService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to load budgets: ${response.body}');
+      throw Exception('Failed to load : ${response.body}');
     }
 
     final data = jsonDecode(response.body);

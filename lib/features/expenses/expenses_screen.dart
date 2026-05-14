@@ -16,12 +16,51 @@ class Expenses extends StatefulWidget {
 
 class _ExpensesState extends State<Expenses> {
   final List<Expense> _registeredExpenses = [];
-  bool _isLoading = true;
   final ExpenseService _expenseService = ExpenseService();
+
+  final TextEditingController _searchController = TextEditingController();
+
+  bool _isLoading = true;
+  int? _selectedMonth;
+  int? _selectedYear;
+
+  List<Expense> get _filteredExpenses {
+    final searchText = _searchController.text.trim().toLowerCase();
+
+    return _registeredExpenses.where((expense) {
+      final matchesTitle =
+          searchText.isEmpty ||
+          expense.title.toLowerCase().contains(searchText);
+
+      final matchesMonth =
+          _selectedMonth == null || expense.date.month == _selectedMonth;
+
+      final matchesYear =
+          _selectedYear == null || expense.date.year == _selectedYear;
+
+      return matchesTitle && matchesMonth && matchesYear;
+    }).toList();
+  }
+
+  List<int> get _availableYears {
+    final years =
+        _registeredExpenses.map((expense) => expense.date.year).toSet();
+
+    if (_selectedYear != null) {
+      years.add(_selectedYear!);
+    }
+
+    final sortedYears = years.toList();
+    sortedYears.sort((a, b) => b.compareTo(a));
+
+    return sortedYears;
+  }
 
   Future<void> _loadExpenses() async {
     try {
       final expenses = await _expenseService.getExpenses();
+
+      if (!mounted) return;
       setState(() {
         _registeredExpenses.clear();
         _registeredExpenses.addAll(expenses as Iterable<Expense>);
@@ -43,6 +82,12 @@ class _ExpensesState extends State<Expenses> {
   void initState() {
     super.initState();
     _loadExpenses();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _openAddExpenseOverlay() {
@@ -119,11 +164,13 @@ class _ExpensesState extends State<Expenses> {
       date: date,
       category: category,
     );
+
     if (!mounted) return;
     setState(() {
       final index = _registeredExpenses.indexWhere(
         (expense) => expense.id == id,
       );
+
       if (index != -1) {
         _registeredExpenses[index] = updateExpense;
       }
@@ -136,6 +183,7 @@ class _ExpensesState extends State<Expenses> {
       final removedExpense = expense;
 
       await _expenseService.deleteExpense(expense.id);
+
       if (!mounted) return;
       setState(() {
         _registeredExpenses.remove(expense);
@@ -144,8 +192,8 @@ class _ExpensesState extends State<Expenses> {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text('Expense deleted.'),
+          duration: const Duration(seconds: 3),
+          content: const Text('Expense deleted.'),
           action: SnackBarAction(
             label: 'Undo',
             onPressed: () async {
@@ -178,45 +226,158 @@ class _ExpensesState extends State<Expenses> {
     }
   }
 
+  void _clearFilters() {
+    setState(() {
+      _searchController.clear();
+      _selectedMonth = null;
+      _selectedYear = null;
+    });
+  }
+
+  Widget _buildFilterSection() {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              labelText: 'Tìm kiếm theo tên chi tiêu',
+              prefixIcon: const Icon(Icons.search),
+              border: const OutlineInputBorder(),
+              suffixIcon:
+                  _searchController.text.isNotEmpty
+                      ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                          });
+                        },
+                      )
+                      : null,
+            ),
+            onChanged: (value) {
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<int?>(
+                  value: _selectedMonth,
+                  decoration: const InputDecoration(
+                    labelText: 'Tháng',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('Tất cả tháng'),
+                    ),
+                    ...List.generate(
+                      12,
+                      (index) => DropdownMenuItem<int?>(
+                        value: index + 1,
+                        child: Text('Tháng ${index + 1}'),
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedMonth = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: DropdownButtonFormField<int?>(
+                  value: _selectedYear,
+                  decoration: const InputDecoration(
+                    labelText: 'Năm',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('Tất cả năm'),
+                    ),
+                    ..._availableYears.map(
+                      (year) => DropdownMenuItem<int?>(
+                        value: year,
+                        child: Text(year.toString()),
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedYear = value;
+                    });
+                  },
+                ),
+              ),
+              IconButton(
+                tooltip: 'Xóa bộ lọc',
+                onPressed: _clearFilters,
+                icon: const Icon(Icons.filter_alt_off),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final filteredExpenses = _filteredExpenses;
+
     Widget mainContent = const Center(
-      child: Text('No expenses found. Start adding some!'),
+      child: Text('No matching expenses found.'),
     );
+
     if (_isLoading) {
       mainContent = const Center(child: CircularProgressIndicator());
-    } else if (_registeredExpenses.isNotEmpty) {
+    } else if (filteredExpenses.isNotEmpty) {
       mainContent = ExpensesList(
-        expenses: _registeredExpenses,
+        expenses: filteredExpenses,
         onRemoveExpense: _removeExpense,
         onEditExpense: _openEditExpenseOverlay,
       );
     }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: const Text('Expense Tracker'),
         actions: [
-          IconButton(onPressed: _openAddExpenseOverlay, icon: Icon(Icons.add)),
+          IconButton(
+            onPressed: _openAddExpenseOverlay,
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
       body:
           width < 600
               ? Column(
                 children: [
-                  Chart(expenses: _registeredExpenses),
-                  Text("Expense List"),
+                  Chart(expenses: filteredExpenses),
+                  _buildFilterSection(),
+                  const Text("Expense List"),
                   Expanded(child: mainContent),
                 ],
               )
               : Row(
                 children: [
-                  Expanded(child: Chart(expenses: _registeredExpenses)),
+                  Expanded(child: Chart(expenses: filteredExpenses)),
                   Expanded(
                     child: Column(
                       children: [
-                        Text("Expense List"),
+                        _buildFilterSection(),
+                        const Text("Expense List"),
                         Expanded(child: mainContent),
                       ],
                     ),
