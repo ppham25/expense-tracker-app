@@ -1,19 +1,38 @@
 const expenseModel = require("../models/expenseModel");
+const categoryModel = require("../models/categoryModel");
 
-const allowedCategories = ["food", "travel", "leisure", "work"];
+const getCategoryFromRequest = async (req, userId) => {
+  const rawCategoryId = req.body.categoryId ?? req.body.category_id;
+
+  if (rawCategoryId !== undefined && rawCategoryId !== null) {
+    const categoryId = Number(rawCategoryId);
+
+    if (Number.isNaN(categoryId)) return null;
+
+    return categoryModel.findCategoryByIdAndUserId(categoryId, userId);
+  }
+
+  if (req.body.category) {
+    return categoryModel.findCategoryByNameAndUserId(req.body.category, userId);
+  }
+
+  return null;
+};
 
 const createExpense = async (req, res) => {
   try {
-    const { title, amount, category, expense_date } = req.body;
+    const { title, amount, expense_date } = req.body;
     const userId = req.user.userId;
 
-    if (!title || !amount || !category || !expense_date) {
+    if (!title || !amount || !expense_date) {
       return res.status(400).json({
         message: "Title, amount, category and expense_date are required",
       });
     }
 
-    if (!allowedCategories.includes(category)) {
+    const category = await getCategoryFromRequest(req, userId);
+
+    if (!category) {
       return res.status(400).json({
         message: "Invalid category",
       });
@@ -39,7 +58,7 @@ const createExpense = async (req, res) => {
       userId,
       trimmedTitle,
       parsedAmount,
-      category,
+      category.id,
       expense_date,
     );
 
@@ -109,7 +128,7 @@ const updateExpense = async (req, res) => {
   try {
     const expenseId = Number(req.params.id);
     const userId = req.user.userId;
-    const { title, amount, category, expense_date } = req.body;
+    const { title, amount, expense_date } = req.body;
 
     if (Number.isNaN(expenseId)) {
       return res.status(400).json({
@@ -117,13 +136,15 @@ const updateExpense = async (req, res) => {
       });
     }
 
-    if (!title || !amount || !category || !expense_date) {
+    if (!title || !amount || !expense_date) {
       return res.status(400).json({
         message: "Title, amount, category and expense_date are required",
       });
     }
 
-    if (!allowedCategories.includes(category)) {
+    const category = await getCategoryFromRequest(req, userId);
+
+    if (!category) {
       return res.status(400).json({
         message: "Invalid category",
       });
@@ -150,7 +171,7 @@ const updateExpense = async (req, res) => {
       userId,
       trimmedTitle,
       parsedAmount,
-      category,
+      category.id,
       expense_date,
     );
 

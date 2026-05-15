@@ -71,7 +71,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             budget: budget,
             onSave: (limitAmount) async {
               await _addBudget(
-                category: budget.category,
+                categoryId: budget.categoryId,
                 limitAmount: limitAmount,
               );
             },
@@ -80,12 +80,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
   }
 
   Future<void> _addBudget({
-    required String category,
+    required int categoryId,
     required double limitAmount,
   }) async {
     try {
       await _budgetService.addBudget(
-        category: category,
+        categoryId: categoryId,
         limitAmount: limitAmount,
         month: _selectedMonth,
         year: _selectedYear,

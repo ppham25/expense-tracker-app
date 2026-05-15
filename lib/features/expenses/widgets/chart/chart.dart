@@ -9,12 +9,15 @@ class Chart extends StatelessWidget {
   final List<Expense> expenses;
 
   List<ExpenseBucket> get buckets {
-    return [
-      ExpenseBucket.forCategory(expenses, Category.food),
-      ExpenseBucket.forCategory(expenses, Category.leisure),
-      ExpenseBucket.forCategory(expenses, Category.travel),
-      ExpenseBucket.forCategory(expenses, Category.work),
-    ];
+    final categoryNames = expenses.map((expense) => expense.category).toSet();
+
+    if (categoryNames.isEmpty) {
+      return const [];
+    }
+
+    return categoryNames
+        .map((category) => ExpenseBucket.forCategory(expenses, category))
+        .toList();
   }
 
   double get maxTotalExpense {
@@ -33,6 +36,18 @@ class Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDarkMode =
         MediaQuery.of(context).platformBrightness == Brightness.dark;
+
+    if (buckets.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        width: double.infinity,
+        height: 180,
+        alignment: Alignment.center,
+        child: const Text('Chưa có dữ liệu biểu đồ'),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
@@ -57,7 +72,7 @@ class Chart extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                for (final bucket in buckets) // alternative to map()
+                for (final bucket in buckets)
                   ChartBar(
                     fill:
                         bucket.totalExpenses == 0
@@ -76,7 +91,8 @@ class Chart extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Icon(
-                            categoryIcons[bucket.category],
+                            categoryIcons[bucket.category.toLowerCase()] ??
+                                Icons.category,
                             color:
                                 isDarkMode
                                     ? Theme.of(context).colorScheme.secondary

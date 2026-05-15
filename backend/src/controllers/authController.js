@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
+const categoryModel = require("../models/categoryModel");
 
 const register = async (req, res) => {
   try {
@@ -29,6 +30,8 @@ const register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const userId = await userModel.createUser(name, email, passwordHash);
+
+    await categoryModel.createDefaultCategoriesForUser(userId);
 
     return res.status(201).json({
       message: "Register successful",

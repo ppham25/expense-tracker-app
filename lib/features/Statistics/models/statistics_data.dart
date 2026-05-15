@@ -68,35 +68,25 @@ class DailySpendingItem {
 
 class CategoryBreakdownItem {
   CategoryBreakdownItem({
+    required this.categoryId,
     required this.category,
     required this.amount,
     required this.percentage,
   });
 
-  final Category category;
+  final int categoryId;
+  final String category;
   final double amount;
   final double percentage;
 
   factory CategoryBreakdownItem.fromJson(Map<String, dynamic> json) {
     return CategoryBreakdownItem(
-      category: _parseCategory(json['category']),
+      categoryId: int.parse(
+        (json['categoryId'] ?? json['category_id'] ?? 0).toString(),
+      ),
+      category: json['category'].toString(),
       amount: double.parse(json['amount'].toString()),
       percentage: double.parse(json['percentage'].toString()),
     );
-  }
-
-  static Category _parseCategory(String category) {
-    switch (category) {
-      case 'food':
-        return Category.food;
-      case 'travel':
-        return Category.travel;
-      case 'leisure':
-        return Category.leisure;
-      case 'work':
-        return Category.work;
-      default:
-        throw Exception('Invalid category: $category');
-    }
   }
 }

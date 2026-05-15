@@ -42,7 +42,7 @@ class BudgetService {
   }
 
   Future<void> addBudget({
-    required String category,
+    required int categoryId,
     required double limitAmount,
     required int month,
     required int year,
@@ -60,7 +60,7 @@ class BudgetService {
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
-        'category': category,
+        'category_id': categoryId,
         'limitAmount': limitAmount,
         'month': month,
         'year': year,
@@ -79,7 +79,7 @@ class BudgetService {
     final token = await _authService.getToken();
 
     if (token == null) {
-      throw Exception("User not authenticated");
+      throw Exception('User not authenticated');
     }
 
     final url = Uri.parse('${ApiConstants.baseUrl}/api/budgets/$id');
@@ -100,7 +100,7 @@ class BudgetService {
     final token = await _authService.getToken();
 
     if (token == null) {
-      throw Exception("User not authenticated");
+      throw Exception('User not authenticated');
     }
 
     final url = Uri.parse('${ApiConstants.baseUrl}/api/budgets/$id');

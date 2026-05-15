@@ -103,14 +103,14 @@ class _ExpensesState extends State<Expenses> {
     required String title,
     required double amount,
     required DateTime date,
-    required Category category,
+    required int categoryId,
   }) async {
     try {
       final newExpense = await _expenseService.addExpense(
         title: title,
         amount: amount,
         date: date,
-        category: category,
+        categoryId: categoryId,
       );
 
       if (!mounted) return;
@@ -136,14 +136,14 @@ class _ExpensesState extends State<Expenses> {
               required String title,
               required double amount,
               required DateTime date,
-              required Category category,
+              required int categoryId,
             }) async {
               await _updatedExpense(
                 id: expense.id,
                 title: title,
                 amount: amount,
                 date: date,
-                category: category,
+                categoryId: categoryId,
               );
             },
           ),
@@ -155,14 +155,14 @@ class _ExpensesState extends State<Expenses> {
     required String title,
     required double amount,
     required DateTime date,
-    required Category category,
+    required int categoryId,
   }) async {
     final updateExpense = await _expenseService.updateExpense(
       id: id,
       title: title,
       amount: amount,
       date: date,
-      category: category,
+      categoryId: categoryId,
     );
 
     if (!mounted) return;
@@ -202,7 +202,7 @@ class _ExpensesState extends State<Expenses> {
                   title: removedExpense.title,
                   amount: removedExpense.amount,
                   date: removedExpense.date,
-                  category: removedExpense.category,
+                  categoryId: removedExpense.categoryId,
                 );
 
                 if (!mounted) return;

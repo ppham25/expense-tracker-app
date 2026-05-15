@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'package:adv_basic/features/expenses/models/expense.dart';
 
 enum BudgetStatus { noBudget, safe, watch, warning, over }
 
@@ -12,6 +12,7 @@ BudgetStatus budgetStatusFromString(String value) {
       return BudgetStatus.warning;
     case 'over':
       return BudgetStatus.over;
+    case 'noBudget':
     case 'no_budget':
     default:
       return BudgetStatus.noBudget;
@@ -21,6 +22,7 @@ BudgetStatus budgetStatusFromString(String value) {
 class Budget {
   Budget({
     this.id,
+    required this.categoryId,
     required this.category,
     required this.hasBudget,
     this.limitAmount,
@@ -30,9 +32,11 @@ class Budget {
     required this.status,
     required this.month,
     required this.year,
+    this.budgetMessage,
   });
 
   final int? id;
+  final int categoryId;
   final String category;
   final bool hasBudget;
   final double? limitAmount;
@@ -42,40 +46,14 @@ class Budget {
   final BudgetStatus status;
   final int month;
   final int year;
-
-  static const List<String> noBudgetMessages = [
-    'Ví chưa có hàng rào bảo vệ đó 😆 Đặt budget ngay thôi!',
-    'Chi tiêu đang chạy tự do rồi nha, set budget để kiểm soát ví nào!',
-    'Chưa có budget mà vẫn tiêu đều tay, ví hơi run rồi đó 😅',
-  ];
-
-  static const List<String> safeMessages = [
-    'Ổn áp, ví vẫn đang thở đều 😎',
-    'Chi tiêu đang rất đẹp, cứ giữ phong độ này nhé!',
-    'Ví còn khỏe, bạn đang kiểm soát tốt đó.',
-  ];
-
-  static const List<String> watchMessages = [
-    'Bắt đầu cần để ý rồi nha 👀',
-    'Ví đang nhắc nhẹ: tiêu chậm lại chút nào.',
-    'Chưa nguy hiểm, nhưng cũng không nên chủ quan đâu.',
-  ];
-
-  static const List<String> warningMessages = [
-    'Cẩn thận, ví bắt đầu rén rồi đó 😬',
-    'Sắp chạm giới hạn rồi, đi nhẹ nói khẽ tiêu ít thôi.',
-    'Budget đang đỏ mặt rồi nha!',
-  ];
-
-  static const List<String> overMessages = [
-    'Cháy ví rồi! Tháng này hơi căng nha 🔥',
-    'Vượt budget rồi, ví cần được cấp cứu!',
-    'Tháng này tiêu hơi sung rồi đó 😭',
-  ];
+  final String? budgetMessage;
 
   factory Budget.fromJson(Map<String, dynamic> json) {
     return Budget(
       id: json['id'],
+      categoryId: int.parse(
+        (json['categoryId'] ?? json['category_id'] ?? 0).toString(),
+      ),
       category: json['category'],
       hasBudget: json['hasBudget'] ?? false,
       limitAmount:
@@ -91,31 +69,25 @@ class Budget {
           json['percentageUsed'] != null
               ? int.tryParse(json['percentageUsed'].toString())
               : null,
-      status: budgetStatusFromString(json['status']),
-      month: json['month'],
-      year: json['year'],
+      status: budgetStatusFromString(json['status'].toString()),
+      month: int.parse(json['month'].toString()),
+      year: int.parse(json['year'].toString()),
+      budgetMessage: json['budgetMessage']?.toString(),
     );
   }
+
   double get progressValue {
     if (percentageUsed == null) {
       return 0;
     }
-    final progress = percentageUsed! / 100;
 
+    final progress = percentageUsed! / 100;
     return progress > 1 ? 1 : progress;
   }
 
   bool get isNoBudget => status == BudgetStatus.noBudget;
 
   String get funMessage {
-    final mess = switch (status) {
-      BudgetStatus.noBudget => noBudgetMessages,
-      BudgetStatus.safe => safeMessages,
-      BudgetStatus.watch => watchMessages,
-      BudgetStatus.warning => warningMessages,
-      BudgetStatus.over => overMessages,
-    };
-    final index = (Random().nextInt(20)) % mess.length;
-    return mess[index];
+    return budgetMessage ?? 'Chưa có thông điệp phù hợp.';
   }
 }

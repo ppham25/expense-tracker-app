@@ -12,19 +12,6 @@ class CategorySpend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String getCategoryName(Category category) {
-      switch (category) {
-        case Category.food:
-          return 'Ăn uống';
-        case Category.travel:
-          return 'Du lịch';
-        case Category.leisure:
-          return 'Giải trí';
-        case Category.work:
-          return 'Công việc';
-      }
-    }
-
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -38,7 +25,7 @@ class CategorySpend extends StatelessWidget {
                 'Chi tiêu theo danh mục',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               if (categoryBreakdown.isEmpty)
                 Text(
                   'Chưa có khoản chi nào.',
@@ -47,7 +34,7 @@ class CategorySpend extends StatelessWidget {
               else
                 ...categoryBreakdown.map(
                   (item) => Text(
-                    '${getCategoryName(item.category)}: ${currencyFormatter.format(item.amount * 1000)} VNĐ',
+                    '${formatCategoryName(item.category)}: ${currencyFormatter.format(item.amount * 1000)} VNĐ',
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.w500,
                     ),

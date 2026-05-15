@@ -51,12 +51,14 @@ const getStatisticsByUserAndMonth = async (userId, month, year) => {
   const [categoryRows] = await db.execute(
     `
       SELECT
-        category,
-        SUM(amount) AS amount
-      FROM expenses
-      WHERE user_id = ?
-        AND expense_date BETWEEN ? AND ?
-      GROUP BY category
+        e.category_id AS categoryId,
+        c.name AS category,
+        SUM(e.amount) AS amount
+      FROM expenses e
+      JOIN categories c ON e.category_id = c.id
+      WHERE e.user_id = ?
+        AND e.expense_date BETWEEN ? AND ?
+      GROUP BY e.category_id, c.name
       ORDER BY amount DESC
     `,
     [userId, startDate, endDate],
@@ -68,6 +70,7 @@ const getStatisticsByUserAndMonth = async (userId, month, year) => {
       totalSpent === 0 ? 0 : Number(((amount / totalSpent) * 100).toFixed(1));
 
     return {
+      categoryId: row.categoryId,
       category: row.category,
       amount,
       percentage,
@@ -77,15 +80,17 @@ const getStatisticsByUserAndMonth = async (userId, month, year) => {
   const [topExpenseRows] = await db.execute(
     `
       SELECT
-        id,
-        title,
-        amount,
-        category,
-        expense_date
-      FROM expenses
-      WHERE user_id = ?
-        AND expense_date BETWEEN ? AND ?
-      ORDER BY amount DESC, expense_date DESC, id DESC
+        e.id,
+        e.title,
+        e.amount,
+        e.category_id AS categoryId,
+        c.name AS category,
+        e.expense_date
+      FROM expenses e
+      JOIN categories c ON e.category_id = c.id
+      WHERE e.user_id = ?
+        AND e.expense_date BETWEEN ? AND ?
+      ORDER BY e.amount DESC, e.expense_date DESC, e.id DESC
       LIMIT 3
     `,
     [userId, startDate, endDate],
@@ -95,6 +100,7 @@ const getStatisticsByUserAndMonth = async (userId, month, year) => {
     id: row.id,
     title: row.title,
     amount: Number(row.amount),
+    categoryId: row.categoryId,
     category: row.category,
     expense_date: row.expense_date,
   }));

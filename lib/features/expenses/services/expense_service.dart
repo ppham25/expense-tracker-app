@@ -9,7 +9,7 @@ import '../models/expense.dart';
 class ExpenseService {
   final AuthService _authService = AuthService();
 
-  Future<List<Expense>?> getExpenses() async {
+  Future<List<Expense>> getExpenses() async {
     final token = await _authService.getToken();
 
     if (token == null) {
@@ -42,7 +42,7 @@ class ExpenseService {
     required String title,
     required double amount,
     required DateTime date,
-    required Category category,
+    required int categoryId,
   }) async {
     final token = await _authService.getToken();
 
@@ -60,12 +60,12 @@ class ExpenseService {
         'title': title,
         'amount': amount,
         'expense_date': date.toIso8601String().split('T').first,
-        'category': category.name,
+        'category_id': categoryId,
       }),
     );
 
     if (response.statusCode != 201) {
-      throw Exception('Failed to add expense');
+      throw Exception('Failed to add expense: ${response.body}');
     }
     final data = jsonDecode(response.body);
 
@@ -98,7 +98,7 @@ class ExpenseService {
     required String title,
     required double amount,
     required DateTime date,
-    required Category category,
+    required int categoryId,
   }) async {
     final token = await _authService.getToken();
 
@@ -116,7 +116,7 @@ class ExpenseService {
         'title': title,
         'amount': amount,
         'expense_date': date.toIso8601String().split('T').first,
-        'category': category.name,
+        'category_id': categoryId,
       }),
     );
 
