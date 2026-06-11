@@ -5,6 +5,7 @@ import 'package:adv_basic/features/statistics/widgets/month_chart.dart';
 import 'package:adv_basic/features/statistics/widgets/month_sum.dart';
 import 'package:adv_basic/features/statistics/widgets/top_expenses.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -17,6 +18,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   late int _selectedMonth;
   late int _selectedYear;
   var _isLoading = true;
+  var _isExporting = false;
   StatisticsData? _statisticsData;
 
   @override
@@ -25,7 +27,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _selectedMonth = DateTime.now().month;
     _selectedYear = DateTime.now().year;
     _loadStatistics();
-    super.initState();
   }
 
   Future<void> _loadStatistics() async {
@@ -47,6 +48,41 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ).showSnackBar(SnackBar(content: Text('Failed to load statistics: $e')));
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _exportReport() async {
+    setState(() {
+      _isExporting = true;
+    });
+
+    try {
+      final filePath = await StatisticsService().exportMonthlyReport(
+        month: _selectedMonth,
+        year: _selectedYear,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Xuất báo cáo thành công')));
+
+      await Share.shareXFiles([
+        XFile(filePath),
+      ], text: 'Báo cáo chi tiêu tháng $_selectedMonth/$_selectedYear');
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Xuất báo cáo thất bại: $e')));
+    } finally {
+      if (!mounted) return;
+
+      setState(() {
+        _isExporting = false;
       });
     }
   }
@@ -144,6 +180,24 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ],
             ),
             const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _isExporting ? null : _exportReport,
+                icon:
+                    _isExporting
+                        ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.file_download),
+                label: Text(
+                  _isExporting ? 'Đang xuất báo cáo...' : 'Xuất báo cáo CSV',
+                ),
+              ),
+            ),
             Expanded(child: content),
           ],
         ),
