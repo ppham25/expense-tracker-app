@@ -16,9 +16,7 @@ class _NewBudgetState extends State<NewBudget> {
   @override
   void initState() {
     super.initState();
-    if (widget.budget != null) {
-      budgetController.text = widget.budget.limitAmount.toString();
-    }
+    budgetController.text = widget.budget.limitAmount.toString();
   }
 
   Future<void> _submitBudgetdata() async {
@@ -53,45 +51,43 @@ class _NewBudgetState extends State<NewBudget> {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
     final bgtext = widget.budget.category.toUpperCase();
 
-    return Container(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + keyboardSpace),
-        child: Column(
-          children: [
-            Text("Tháng ${widget.budget.month}/${widget.budget.year}"),
-            Text(
-              bgtext,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + keyboardSpace),
+      child: Column(
+        children: [
+          Text("Tháng ${widget.budget.month}/${widget.budget.year}"),
+          Text(
+            bgtext,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          TextField(
+            controller: budgetController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              suffix: Text("Nghìn VNĐ"),
+              labelText: "Giới hạn chi tiêu (VND)",
+              border: OutlineInputBorder(),
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: budgetController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                suffix: Text("Nghìn VNĐ"),
-                labelText: "Giới hạn chi tiêu (VND)",
-                border: OutlineInputBorder(),
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text("Cancel"),
-                  ),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _submitBudgetdata,
+                  child: Text("Save"),
                 ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _submitBudgetdata,
-                    child: Text("Save"),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

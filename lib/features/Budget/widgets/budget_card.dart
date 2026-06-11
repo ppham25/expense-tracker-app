@@ -102,7 +102,7 @@ class BudgetCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.18)),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -191,7 +191,7 @@ class BudgetCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.22)),
+          border: Border.all(color: color.withValues(alpha: 0.22)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -265,7 +265,7 @@ class BudgetCard extends StatelessWidget {
                   minHeight: 10,
                   value: budget.progressValue,
                   color: color,
-                  backgroundColor: color.withOpacity(0.15),
+                  backgroundColor: color.withValues(alpha: 0.15),
                 ),
               ),
               const SizedBox(height: 14),

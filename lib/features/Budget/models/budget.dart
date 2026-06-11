@@ -1,5 +1,3 @@
-import 'package:adv_basic/features/expenses/models/expense.dart';
-
 enum BudgetStatus { noBudget, safe, watch, warning, over }
 
 BudgetStatus budgetStatusFromString(String value) {

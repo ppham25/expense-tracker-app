@@ -55,6 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(content: Text("Tải thông tin cá nhân thất bại: $error")),
       );
     } finally {
+      // ignore: control_flow_in_finally
       if (!mounted) return;
       setState(() {
         _isLoading = false;

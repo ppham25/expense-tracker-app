@@ -80,6 +80,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Xuất báo cáo thành công')));
 
+      // ignore: deprecated_member_use
       await Share.shareXFiles([
         XFile(filePath),
       ], text: 'Báo cáo chi tiêu tháng $_selectedMonth/$_selectedYear');
@@ -90,6 +91,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text('Xuất báo cáo thất bại: $e')));
     } finally {
+      // ignore: control_flow_in_finally
       if (!mounted) return;
 
       setState(() {
