@@ -6,4 +6,6 @@ const statisticsController = require("../controllers/statisticsController");
 
 router.get("/", authMiddleware, statisticsController.getMonthlyStatistics);
 
+router.get("/export", authMiddleware, statisticsController.exportMonthlyReport);
+
 module.exports = router;

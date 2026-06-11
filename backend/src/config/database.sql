@@ -222,8 +222,10 @@ INSERT INTO budget_messages (status, message_type, content) VALUES
 -- 6. XEM LẠI DATA
 -- =========================================================
 SELECT * FROM users;
-SELECT * FROM categories;
+SELECT * FROM categories where user_id =1;
 SELECT * FROM budget_messages;
+select * from budgets where user_id =1;
+select * from expenses where user_id =1;
 
 SELECT
   e.id,
