@@ -13,12 +13,19 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
-  final List<Widget> _screens = [
-    Expenses(),
-    StatisticsScreen(),
-    BudgetScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _screens = [
+      Expenses(onGoToBudget: () => _selectTab(2)),
+      const StatisticsScreen(),
+      const BudgetScreen(),
+      const ProfileScreen(),
+    ];
+  }
 
   void _selectTab(int index) {
     setState(() {
@@ -32,10 +39,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          _selectTab(index);
-        },
-        items: [
+        onTap: _selectTab,
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Statis'),
           BottomNavigationBarItem(

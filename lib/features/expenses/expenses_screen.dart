@@ -6,9 +6,13 @@ import 'package:adv_basic/features/expenses/widgets/chart/chart.dart';
 import 'package:adv_basic/features/expenses/widgets/new_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:adv_basic/features/expenses/widgets/expenses_list/expenses_list.dart';
+import 'package:adv_basic/features/budget/models/budget.dart';
+import 'package:adv_basic/features/budget/services/budget_service.dart';
 
 class Expenses extends StatefulWidget {
-  const Expenses({super.key});
+  const Expenses({super.key, this.onGoToBudget});
+
+  final VoidCallback? onGoToBudget;
 
   @override
   _ExpensesState createState() => _ExpensesState();
@@ -17,7 +21,7 @@ class Expenses extends StatefulWidget {
 class _ExpensesState extends State<Expenses> {
   final List<Expense> _registeredExpenses = [];
   final ExpenseService _expenseService = ExpenseService();
-
+  final BudgetService _budgetService = BudgetService();
   final TextEditingController _searchController = TextEditingController();
 
   bool _isLoading = true;
@@ -99,6 +103,189 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
+  String _budgetStatusLabel(BudgetStatus status) {
+    switch (status) {
+      case BudgetStatus.watch:
+        return 'Cần chú ý';
+      case BudgetStatus.warning:
+        return 'Cảnh báo';
+      case BudgetStatus.over:
+        return 'Vượt ngân sách';
+      case BudgetStatus.safe:
+        return 'An toàn';
+      case BudgetStatus.noBudget:
+        return 'Chưa thiết lập';
+    }
+  }
+
+  Color _budgetStatusColor(BudgetStatus status) {
+    switch (status) {
+      case BudgetStatus.watch:
+        return const Color(0xFF1565C0);
+      case BudgetStatus.warning:
+        return const Color(0xFFEF6C00);
+      case BudgetStatus.over:
+        return const Color(0xFFC62828);
+      case BudgetStatus.safe:
+        return const Color(0xFF2E7D32);
+      case BudgetStatus.noBudget:
+        return const Color(0xFF455A64);
+    }
+  }
+
+  IconData _budgetStatusIcon(BudgetStatus status) {
+    switch (status) {
+      case BudgetStatus.watch:
+        return Icons.notifications_active_outlined;
+      case BudgetStatus.warning:
+        return Icons.warning_amber_rounded;
+      case BudgetStatus.over:
+        return Icons.error_outline;
+      case BudgetStatus.safe:
+        return Icons.check_circle_outline;
+      case BudgetStatus.noBudget:
+        return Icons.add_circle_outline;
+    }
+  }
+
+  Future<void> _showBudgetReminderAfterAddingExpense(Expense expense) async {
+    try {
+      final budgets = await _budgetService.getBudgets(
+        month: expense.date.month,
+        year: expense.date.year,
+      );
+
+      Budget? matchedBudget;
+
+      for (final budget in budgets) {
+        if (budget.categoryId == expense.categoryId) {
+          matchedBudget = budget;
+          break;
+        }
+      }
+
+      if (!mounted) return;
+
+      if (matchedBudget == null ||
+          matchedBudget.status == BudgetStatus.noBudget ||
+          !matchedBudget.hasBudget) {
+        _showNoBudgetSnackBar(expense);
+        return;
+      }
+
+      _showBudgetStatusSnackBar(matchedBudget);
+    } catch (error) {
+      debugPrint('Không thể kiểm tra nhắc nhở ngân sách: $error');
+    }
+  }
+
+  void _showBudgetStatusSnackBar(Budget budget) {
+    final statusColor = _budgetStatusColor(budget.status);
+    final statusLabel = _budgetStatusLabel(budget.status);
+    final statusIcon = _budgetStatusIcon(budget.status);
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    final snackBarController = ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: statusColor,
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(statusIcon, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nhắc nhở ngân sách: $statusLabel',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    budget.funMessage,
+                    style: const TextStyle(color: Colors.white, height: 1.3),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        action:
+            widget.onGoToBudget == null
+                ? null
+                : SnackBarAction(
+                  label: 'Xem',
+                  textColor: Colors.lightBlueAccent,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    widget.onGoToBudget!();
+                  },
+                ),
+      ),
+    );
+
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      snackBarController.close();
+    });
+  }
+
+  void _showNoBudgetSnackBar(Expense expense) {
+    final categoryName = formatCategoryName(expense.category);
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    final snackBarController = ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF455A64),
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.add_circle_outline, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Danh mục "$categoryName" chưa có ngân sách tháng '
+                '${expense.date.month}/${expense.date.year}.',
+                style: const TextStyle(color: Colors.white, height: 1.3),
+              ),
+            ),
+          ],
+        ),
+        action:
+            widget.onGoToBudget == null
+                ? null
+                : SnackBarAction(
+                  label: 'Tạo',
+                  textColor: Colors.lightBlueAccent,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    widget.onGoToBudget!();
+                  },
+                ),
+      ),
+    );
+
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      snackBarController.close();
+    });
+  }
+
   Future<void> _addExpense({
     required String title,
     required double amount,
@@ -114,10 +301,17 @@ class _ExpensesState extends State<Expenses> {
       );
 
       if (!mounted) return;
+
       setState(() {
         _registeredExpenses.insert(0, newExpense);
       });
+
+      ScaffoldMessenger.of(context).clearSnackBars();
+
+      await _showBudgetReminderAfterAddingExpense(newExpense);
     } catch (error) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to add expense: $error')));
@@ -185,14 +379,21 @@ class _ExpensesState extends State<Expenses> {
       await _expenseService.deleteExpense(expense.id);
 
       if (!mounted) return;
+
       setState(() {
         _registeredExpenses.remove(expense);
       });
 
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
+
+      final snackBarController = ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           content: const Text('Expense deleted.'),
           action: SnackBarAction(
             label: 'Undo',
@@ -206,10 +407,15 @@ class _ExpensesState extends State<Expenses> {
                 );
 
                 if (!mounted) return;
+
                 setState(() {
                   _registeredExpenses.insert(removedIndex, restoredExpense);
                 });
+
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
               } catch (error) {
+                if (!mounted) return;
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Failed to restore expense: $error')),
                 );
@@ -218,8 +424,14 @@ class _ExpensesState extends State<Expenses> {
           ),
         ),
       );
+
+      Future.delayed(const Duration(seconds: 3), () {
+        if (!mounted) return;
+        snackBarController.close();
+      });
     } catch (error) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete expense: $error')),
       );

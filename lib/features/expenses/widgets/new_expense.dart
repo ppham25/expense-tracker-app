@@ -211,6 +211,7 @@ class _NewExpenseState extends State<NewExpense> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(16.0, 40, 16.0, keyboardSpace + 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   decoration: const InputDecoration(labelText: 'Title'),
@@ -248,62 +249,65 @@ class _NewExpenseState extends State<NewExpense> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                if (_isLoadingCategories)
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  DropdownButton<int>(
+                    value: _selectedCategory?.id,
+                    hint: const Text('Category'),
+                    items: [
+                      ..._categories.map(
+                        (category) => DropdownMenuItem<int>(
+                          value: category.id,
+                          child: Text(category.name.toUpperCase()),
+                        ),
+                      ),
+                      const DropdownMenuItem<int>(
+                        value: -1,
+                        child: Row(
+                          children: [
+                            Icon(Icons.add, size: 18),
+                            SizedBox(width: 6),
+                            Text('THÊM DANH MỤC'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) async {
+                      if (value == null) return;
+
+                      if (value == -1) {
+                        await _showAddCategoryDialog();
+                        return;
+                      }
+
+                      setState(() {
+                        _selectedCategory = _categories.firstWhere(
+                          (category) => category.id == value,
+                        );
+                      });
+                    },
+                  ),
                 Row(
                   children: [
-                    if (_isLoadingCategories)
-                      const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else
-                      DropdownButton<int>(
-                        value: _selectedCategory?.id,
-                        hint: const Text('Category'),
-                        items: [
-                          ..._categories.map(
-                            (category) => DropdownMenuItem<int>(
-                              value: category.id,
-                              child: Text(category.name.toUpperCase()),
-                            ),
-                          ),
-                          const DropdownMenuItem<int>(
-                            value: -1,
-                            child: Row(
-                              children: [
-                                Icon(Icons.add, size: 18),
-                                SizedBox(width: 6),
-                                Text('THÊM DANH MỤC'),
-                              ],
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) async {
-                          if (value == null) return;
-
-                          if (value == -1) {
-                            await _showAddCategoryDialog();
-                            return;
-                          }
-
-                          setState(() {
-                            _selectedCategory = _categories.firstWhere(
-                              (category) => category.id == value,
-                            );
-                          });
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
                         },
+                        child: const Text('Cancel'),
                       ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Cancel'),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _submitExpenseData,
-                      child: const Text('Save Expense'),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _submitExpenseData,
+                        child: const Text('Save Expense'),
+                      ),
                     ),
                   ],
                 ),
