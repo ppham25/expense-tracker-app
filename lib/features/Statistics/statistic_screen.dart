@@ -6,6 +6,8 @@ import 'package:adv_basic/features/statistics/widgets/month_sum.dart';
 import 'package:adv_basic/features/statistics/widgets/top_expenses.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:adv_basic/features/statistics/models/spending_trend.dart';
+import 'package:adv_basic/features/statistics/widgets/spending_trend_card.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -19,6 +21,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   late int _selectedYear;
   var _isLoading = true;
   var _isExporting = false;
+  SpendingTrend? _spendingTrend;
   StatisticsData? _statisticsData;
 
   @override
@@ -31,7 +34,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Future<void> _loadStatistics() async {
     try {
-      final statistics = await StatisticsService().getMonthlyStatistics(
+      final service = StatisticsService();
+
+      final statistics = await service.getMonthlyStatistics(
+        month: _selectedMonth,
+        year: _selectedYear,
+      );
+
+      final trend = await service.getSpendingTrend(
         month: _selectedMonth,
         year: _selectedYear,
       );
@@ -39,6 +49,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       if (!mounted) return;
       setState(() {
         _statisticsData = statistics;
+        _spendingTrend = trend;
         _isLoading = false;
       });
     } catch (e) {
@@ -127,6 +138,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               style: Theme.of(context).textTheme.copyWith().titleLarge,
             ),
             MonthlySum(sumData: _statisticsData!.monthlySummary),
+            if (_spendingTrend != null)
+              SpendingTrendCard(trend: _spendingTrend!),
             CategorySpend(
               categoryBreakdown: _statisticsData!.categoryBreakdown,
             ),

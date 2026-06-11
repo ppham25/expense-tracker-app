@@ -118,6 +118,114 @@ const getStatisticsByUserAndMonth = async (userId, month, year) => {
   };
 };
 
+const getSpendingTrendByUser = async (
+  userId,
+  month,
+  year,
+  numberOfMonths = 6,
+) => {
+  const selectedDate = new Date(year, month - 1, 1);
+
+  const trendItems = [];
+
+  for (let i = numberOfMonths - 1; i >= 0; i--) {
+    const currentDate = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() - i,
+      1,
+    );
+
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+
+    const monthString = String(currentMonth).padStart(2, "0");
+    const startDate = `${currentYear}-${monthString}-01`;
+    const endDate = new Date(currentYear, currentMonth, 0)
+      .toISOString()
+      .split("T")[0];
+
+    const [rows] = await db.execute(
+      `
+        SELECT
+          COALESCE(SUM(amount), 0) AS total_spent,
+          COUNT(*) AS expense_count
+        FROM expenses
+        WHERE user_id = ?
+          AND expense_date BETWEEN ? AND ?
+      `,
+      [userId, startDate, endDate],
+    );
+
+    trendItems.push({
+      month: currentMonth,
+      year: currentYear,
+      totalSpent: Number(rows[0].total_spent || 0),
+      expenseCount: Number(rows[0].expense_count || 0),
+    });
+  }
+
+  const currentMonthData = trendItems[trendItems.length - 1];
+  const previousMonthData = trendItems[trendItems.length - 2];
+
+  let changeAmount = 0;
+  let changePercentage = 0;
+  let trendStatus = "stable";
+  let message = "Chi tiêu không thay đổi nhiều so với tháng trước.";
+
+  if (previousMonthData) {
+    changeAmount = currentMonthData.totalSpent - previousMonthData.totalSpent;
+
+    if (previousMonthData.totalSpent === 0 && currentMonthData.totalSpent > 0) {
+      changePercentage = 100;
+      trendStatus = "increase";
+      message = "Tháng này phát sinh chi tiêu mới so với tháng trước.";
+    } else if (
+      previousMonthData.totalSpent > 0 &&
+      currentMonthData.totalSpent === 0
+    ) {
+      changePercentage = -100;
+      trendStatus = "decrease";
+      message = "Chi tiêu tháng này giảm hoàn toàn so với tháng trước.";
+    } else if (previousMonthData.totalSpent > 0) {
+      changePercentage = Number(
+        ((changeAmount / previousMonthData.totalSpent) * 100).toFixed(1),
+      );
+
+      if (changePercentage > 0) {
+        trendStatus = "increase";
+        message = `Chi tiêu tháng này tăng ${changePercentage}% so với tháng trước.`;
+      } else if (changePercentage < 0) {
+        trendStatus = "decrease";
+        message = `Chi tiêu tháng này giảm ${Math.abs(
+          changePercentage,
+        )}% so với tháng trước.`;
+      }
+    }
+  }
+
+  return {
+    selectedMonth: month,
+    selectedYear: year,
+    previousMonth: previousMonthData
+      ? {
+          month: previousMonthData.month,
+          year: previousMonthData.year,
+          totalSpent: previousMonthData.totalSpent,
+        }
+      : null,
+    currentMonth: {
+      month: currentMonthData.month,
+      year: currentMonthData.year,
+      totalSpent: currentMonthData.totalSpent,
+    },
+    changeAmount,
+    changePercentage,
+    trendStatus,
+    message,
+    monthlyTrend: trendItems,
+  };
+};
 module.exports = {
   getStatisticsByUserAndMonth,
+  getSpendingTrendByUser,
 };
